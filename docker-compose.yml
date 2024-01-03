@@ -17,8 +17,8 @@ services:
     image: dpage/pgadmin4
     container_name: pgAdmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: "marcelo.feitoza@sou.inteli.edu.br"
-      PGADMIN_DEFAULT_PASSWORD: "marcelo123"
+      PGADMIN_DEFAULT_EMAIL: "email@default.com"
+      PGADMIN_DEFAULT_PASSWORD: "password"
     ports:
       - "5050:80"
 

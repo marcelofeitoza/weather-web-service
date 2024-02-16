@@ -30,6 +30,7 @@ services:
     volumes:
       - redis_data:/data
 
+  #  Comment for local development
   weather-web-service:
     build: ./
     ports:
@@ -40,6 +41,7 @@ services:
     environment:
       DATABASE_URL: "postgres://forecast:forecast@forecast_postgres:5432/forecast?sslmode=disable"
       REDIS_URL: "redis://redis/"
+  # Comment for local development
 
 volumes:
   postgres_data:

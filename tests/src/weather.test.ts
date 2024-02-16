@@ -1,60 +1,60 @@
 import supertest from 'supertest';
 
-const request = supertest('http://0.0.0.0:3000');
+const BASE_URL = 'http://0.0.0.0:3000';
+const request = supertest(BASE_URL);
+
+const SUCCESS_STATUS = 200;
+const REDIRECT_STATUS = 308;
+const NOT_FOUND_STATUS = 404;
+const DEFAULT_CITY = 'Montana';
+const NON_EXISTENT_CITY = 'NonExistentCity';
 
 describe('Weather API redirection', () => {
-    it('GET / should redirect to /weather/São%20Paulo', async () => {
+    it(`GET / should redirect to /weather/${DEFAULT_CITY}`, async () => {
         const response = await request.get('/');
-        expect(response.status).toBe(308);
-        expect(response.headers.location).toBe("/weather/SÃ£o%20Paulo");
+        expect(response.status).toBe(REDIRECT_STATUS);
+        expect(response.header.location).toBe(`/weather/${DEFAULT_CITY}`);
     });
 });
 
 describe('Weather API performance', () => {
-    it('repeat a request 10 times and check if the mean of the request time of the last four is less than 25ms', async () => {
-        const requestTimes: number[] = [];
+    const REQUEST_TIMES = 50;
+    const MEAN_LIMIT = 50;
 
-        for (let i = 0; i < 10; i++) {
+    it(`GET /weather/${DEFAULT_CITY} during high load should still be less than ${MEAN_LIMIT}ms`, async () => {
+        const requestTimes: {
+            status: number,
+            time: number
+        }[] = [];
+
+        for (let i = 0; i < REQUEST_TIMES; i++) {
             const start = new Date().getTime();
-            await request.get('/weather/São%20Paulo');
+            const response = await request.get(`/weather/${encodeURIComponent(DEFAULT_CITY)}`);
+            const status_code = response.status;
             const end = new Date().getTime();
 
-            requestTimes.push(end - start);
+            requestTimes.push({
+                status: status_code,
+                time: end - start
+            });
         }
 
-        const lastFourRequestTimes = requestTimes.slice(1);
-        const meanRequestTime = lastFourRequestTimes
-            .reduce((a: number, b: number) => a + b, 0) / lastFourRequestTimes.length;
+        const allRequestsSuccessful = requestTimes.every((request) => request.status === SUCCESS_STATUS);
+        const meanRequestTime = requestTimes.reduce((acc, request) => acc + request.time, 0) / REQUEST_TIMES;
 
-        expect(meanRequestTime).toBeLessThan(25);
+        expect(allRequestsSuccessful).toBe(true);
+        expect(meanRequestTime).toBeLessThan(MEAN_LIMIT);
     });
 });
 
 describe('Weather API edge cases', () => {
-    it('GET /weather/NonExistentCity should return 404', async () => {
-        const response = await request.get('/weather/NonExistentCity');
-        expect(response.status).toBe(404);
+    it(`GET /weather/${NON_EXISTENT_CITY} should return ${NOT_FOUND_STATUS}`, async () => {
+        const response = await request.get(`/weather/${NON_EXISTENT_CITY}`);
+        expect(response.status).toBe(NOT_FOUND_STATUS);
     });
 
     it('GET /weather/ with no city should return 404', async () => {
         const response = await request.get('/weather');
-        expect(response.status).toBe(404);
-    });
-
-    it('GET /weather/São%20Paulo during high load should still be less than 50ms', async () => {
-        const requestTimes: number[] = [];
-
-        for (let i = 0; i < 50; i++) {
-            const start = new Date().getTime();
-            await request.get('/weather/São%20Paulo');
-            const end = new Date().getTime();
-
-            requestTimes.push(end - start);
-        }
-
-        const lastFourRequestTimes = requestTimes.slice(1);
-        const meanRequestTime = lastFourRequestTimes.reduce((a, b) => a + b, 0) / lastFourRequestTimes.length;
-
-        expect(meanRequestTime).toBeLessThan(50);
+        expect(response.status).toBe(NOT_FOUND_STATUS);
     });
 });

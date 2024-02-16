@@ -2,7 +2,6 @@ mod models;
 mod routes;
 mod services;
 
-use axum::response::Redirect;
 use axum::routing::get;
 use models::weather_models::AppState;
 use routes::weather_router;
@@ -13,7 +12,6 @@ async fn main() -> anyhow::Result<()> {
 
     let app = axum::Router::new()
         .nest("/", weather_router())
-        .route("/", get(|| async { Redirect::permanent("/weather/São%20Paulo") }))
         .route("/health", get(|| async { "Hello, weather!" }))
         .with_state(app_state);
 

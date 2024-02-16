@@ -1,3 +1,4 @@
+use std::time::Duration;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 
@@ -5,6 +6,18 @@ use sqlx::PgPool;
 pub struct AppState {
     pub db_pool: PgPool,
     pub redis_client: redis::Client,
+}
+
+impl AppState {
+    pub async fn new() -> anyhow::Result<Self> {
+        let db_connection_str = dotenv::var("DATABASE_URL")?;
+        let db_pool = PgPool::connect(&db_connection_str).await?;
+
+        let redis_url = dotenv::var("REDIS_URL")?;
+        let redis_client = redis::Client::open(redis_url)?;
+
+        Ok(AppState { db_pool, redis_client })
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -44,6 +57,7 @@ pub struct Hourly {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct WeatherDisplay {
+    pub duration: String,
     pub city: String,
     pub forecasts: Vec<Forecast>,
 }
@@ -55,8 +69,9 @@ pub struct Forecast {
 }
 
 impl WeatherDisplay {
-    pub fn new(city: &str, response: WeatherResponse) -> Self {
+    pub fn new(city: &str, response: WeatherResponse, duration: Duration) -> Self {
         let display = WeatherDisplay {
+            duration: format!("{:?}", duration),
             city: city.to_string(),
             forecasts: response
                 .hourly

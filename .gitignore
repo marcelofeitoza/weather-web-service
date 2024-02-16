@@ -1,2 +1,8 @@
-/target
+target
 .env
+
+.idea
+
+tests/node_modules
+tests/pnpm-lock.yaml
+tests/.pnpm

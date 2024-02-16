@@ -3,11 +3,11 @@ use redis::Commands;
 
 use crate::models::weather_models::{AppState, GeoResponse, LatLong, WeatherResponse};
 
-pub struct WeatherService {}
+pub struct WeatherService;
 
 impl WeatherService {
     pub fn new() -> Self {
-        WeatherService {}
+        WeatherService
     }
 
     pub async fn fetch_lat_long(&self, city: &str) -> Result<LatLong, anyhow::Error> {
@@ -29,7 +29,6 @@ impl WeatherService {
 
         let lat_long_redis_key = format!("lat_long:{}", name);
 
-        // Reading from Redis
         let mut redis_conn: redis::Connection = redis_client.get_connection()?;
         let lat_long_redis: Option<String> = redis_conn.get(&lat_long_redis_key).unwrap();
 
@@ -62,7 +61,6 @@ impl WeatherService {
             .execute(db_pool)
             .await?;
 
-        // Writing to Redis because the data was not found in the redis cache and was not found in the database
         let mut redis_conn: redis::Connection = redis_client.get_connection()?;
 
         let lat_long_json = serde_json::to_string(&lat_long)?;

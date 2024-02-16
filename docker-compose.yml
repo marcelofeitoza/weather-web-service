@@ -30,6 +30,17 @@ services:
     volumes:
       - redis_data:/data
 
+  weather-web-service:
+    build: ./
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DATABASE_URL: "postgres://forecast:forecast@forecast_postgres:5432/forecast?sslmode=disable"
+      REDIS_URL: "redis://redis/"
+
 volumes:
   postgres_data:
   redis_data:

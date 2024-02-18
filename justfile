@@ -2,7 +2,7 @@ run:
     cargo run
 
 run-container:
-    docker-compose up -d
+    docker compose up -d
 
 build:
     cargo build

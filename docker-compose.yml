@@ -11,7 +11,7 @@ services:
       POSTGRES_PASSWORD: forecast
       POSTGRES_DB: forecast
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - "./static/schema/001-init.sql:/docker-entrypoint-initdb.d/001-schema.sql"
 
   pgAdmin:
     image: dpage/pgadmin4
@@ -30,7 +30,6 @@ services:
     volumes:
       - redis_data:/data
 
-  #  Comment for local development
   weather-web-service:
     build: ./
     ports:
@@ -41,8 +40,8 @@ services:
     environment:
       DATABASE_URL: "postgres://forecast:forecast@forecast_postgres:5432/forecast?sslmode=disable"
       REDIS_URL: "redis://redis/"
-  # Comment for local development
 
 volumes:
   postgres_data:
   redis_data:
+

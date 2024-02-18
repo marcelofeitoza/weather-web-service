@@ -1,3 +1,7 @@
+alias r := run
+alias t := test
+alias d := run-container
+
 run:
     cargo run
 

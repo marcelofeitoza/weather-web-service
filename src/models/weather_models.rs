@@ -42,7 +42,7 @@ pub struct ErrorResponse {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct WeatherResponse {
+pub struct Weather {
     pub latitude: f64,
     pub longitude: f64,
     pub timezone: String,
@@ -56,20 +56,20 @@ pub struct Hourly {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct Forecast {
+    pub date: String,
+    pub temperature: f64,
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct WeatherDisplay {
     pub duration: String,
     pub city: String,
     pub forecasts: Vec<Forecast>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Forecast {
-    pub date: String,
-    pub temperature: String,
-}
-
 impl WeatherDisplay {
-    pub fn new(city: &str, response: WeatherResponse, duration: Duration) -> Self {
+    pub fn new(city: &str, response: Weather, duration: Duration) -> Self {
         let display = WeatherDisplay {
             duration: format!("{:?}", duration),
             city: city.to_string(),
@@ -80,7 +80,7 @@ impl WeatherDisplay {
                 .zip(response.hourly.temperature_2m.iter())
                 .map(|(date, temperature)| Forecast {
                     date: date.to_string(),
-                    temperature: temperature.to_string(),
+                    temperature: *temperature,
                 })
                 .collect(),
         };

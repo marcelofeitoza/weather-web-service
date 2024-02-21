@@ -13,15 +13,6 @@ services:
     volumes:
       - "./static/schema/001-init.sql:/docker-entrypoint-initdb.d/001-schema.sql"
 
-  pgAdmin:
-    image: dpage/pgadmin4
-    container_name: pgAdmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: "email@default.com"
-      PGADMIN_DEFAULT_PASSWORD: "password"
-    ports:
-      - "5050:80"
-
   redis:
     image: redis:latest
     container_name: "forecast_redis"

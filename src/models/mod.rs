@@ -1,4 +1,5 @@
-use axum::{response::{IntoResponse, Response}, http::StatusCode};
+use axum::{response::{IntoResponse, Response}, http::StatusCode, Json};
+use serde_json::json;
 
 pub mod weather_models;
 
@@ -22,7 +23,14 @@ impl AppError {
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         let status_code = self.status_code.unwrap_or(StatusCode::INTERNAL_SERVER_ERROR);
-        (status_code, format!("Something went wrong: {}", self.error)).into_response()
+        // (status_code, format!("Something went wrong: {}", self.error)).into_response()
+        (
+            status_code,
+            Json(json!({
+                "status": status_code.as_u16(),
+                "error": format!("{}", self.error)
+            })),
+        ).into_response()
     }
 }
 

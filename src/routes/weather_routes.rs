@@ -9,24 +9,27 @@ use crate::{
             AppState,
             WeatherDisplay,
             WeatherParams
-        }
+        },
     },
-    services::weather_service::WeatherService
+    services::weather_service::{
+        get_weather,
+        get_lat_long
+    }
 };
 
 pub async fn weather(
     Path(params): Path<WeatherParams>,
     State(app_state): State<AppState>,
 ) -> Result<String, AppError> {
-    let start = Instant::now();
-
-    let weather_service = WeatherService::new();
     let city = &params.city;
 
-    let lat_long = weather_service.get_lat_long(&app_state, &city).await.map_err(
+    let start = Instant::now();
+
+    let lat_long = get_lat_long(&app_state, &city).await.map_err(
         |err| AppError::new(err, Some(StatusCode::NOT_FOUND))
     )?;
-    let weather = weather_service.fetch_weather(&app_state, lat_long).await?;
+    let weather = get_weather(&app_state, lat_long).await?;
+
     let duration = start.elapsed();
 
     let display = WeatherDisplay::new(&city, weather, duration);
